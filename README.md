@@ -1,12 +1,12 @@
 ### Hi there 👋
 Hi, I'm Amey. You might recognize me as GitHub's mascot.
 
-| Rank | Languages  |
-|-----:|------------|
-|     1| Python     |
-|     2| JavaScript |
-|     3| C++        | 
-|     4| Java       | 
+| Rank | Languages  | Level Of Proficiency |
+|-----:|------------|----------------------|
+|     1| Python     |      Advanced        |
+|     2| JavaScript |    Intermediate      |
+|     3| C++        |    Intermediate      |
+|     4| Java       |    Intermediate      |
 <!--
 **AmeyBhat190102/AmeyBhat190102** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
