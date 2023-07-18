@@ -1,5 +1,11 @@
 ### Hi there 👋
+Hi, I'm Mona. You might recognize me as GitHub's mascot.
 
+| Rank | Languages |
+|-----:|-----------|
+|     1| Javascript|
+|     2| Python    |
+|     3| SQL       |
 <!--
 **AmeyBhat190102/AmeyBhat190102** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
