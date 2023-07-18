@@ -1,5 +1,5 @@
 ### Hi there 👋
-Hi, I'm Amey. You might recognize me as GitHub's mascot.
+Hi, I'm Amey Bhat!!
 
 | Rank | Languages  | Level Of Proficiency |
 |-----:|------------|----------------------|
