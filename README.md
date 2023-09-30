@@ -12,7 +12,7 @@ Hi, I'm Amey Bhat!!
 
 - 🎓 I am a B.Tech - Computer Science student at VIT, Vellore
 
-- - 🌱 I’m currently learning **NextJS**
+- 🌱 I’m currently learning **NextJS**
 
 
 - 👯 I’m looking to collaborate on **Full Stack Web Development**
