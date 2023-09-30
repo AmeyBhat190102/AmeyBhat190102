@@ -17,6 +17,6 @@ Hi, I'm Amey Bhat!!
 - 📫 Reach Me At: ameybhat19@gmail.com
 
 <p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=AmeyBhat190102&show_icons=true&locale=en" alt="maitrey1111" /></p>
-<p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=AmeyBhat190102&show_icons=true&locale=en&layout=compact" alt="maitrey1111" /></p>
-<p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=AmeyBhat190102&" alt="maitrey1111" /></p>
+<p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=AmeyBhat190102&show_icons=true&locale=en&layout=compact" alt="AmeyBhat190102" /></p>
+<p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=AmeyBhat190102" alt="AmeyBhat190102" /></p>
 
