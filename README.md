@@ -1,3 +1,4 @@
+
 ### Hi there 👋
 Hi, I'm Amey Bhat!!
 
@@ -14,4 +15,8 @@ Hi, I'm Amey Bhat!!
 - 👯 I’m looking to collaborate on Web Development Task And Data Related Works
 - 💬 Ask me about Python 
 - 📫 Reach Me At: ameybhat19@gmail.com
+
+<p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=AmeyBhat190102&show_icons=true&locale=en" alt="maitrey1111" /></p>
+<p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=AmeyBhat190102&show_icons=true&locale=en&layout=compact" alt="maitrey1111" /></p>
+<p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=AmeyBhat190102&" alt="maitrey1111" /></p>
 
