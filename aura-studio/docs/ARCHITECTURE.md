@@ -1,5 +1,7 @@
 # AURA Studio — System Architecture
 
+> **v0.2 — the dynamic studio.** This document's principles (§1–§2) still govern. What changed in v0.2: the fixed pipeline of §3 was replaced by a **producer-cast crew** — a producer agent emits a validated `WorkPlan` (task DAG over the role registry in `roles/library.py`) and a generic executor spawns one agent per task via LangGraph `Send`, parallel where the DAG allows. Runs are **durable** (Postgres/sqlite checkpointer, `thread_id = project_id`; arq retries resume mid-graph) with two `interrupt()` gates: blocking client questions and the Studio-tier human-editor review. Every node emits typed `ProjectEvent`s → Postgres + Redis → SSE, which powers the web app's live agent theater. Provider calls are metered against a per-project budget (`ToolBelt`); failures are isolated per task (`TaskResult(status="failed")`, dependents skipped, salvage delivery). See `graph/dynamic.py`, `planning/schemas.py`, `worker.py`, and the README's v0.2 walkthrough. The v0.1 fixed graph remains in `graph/pipeline.py`.
+
 ## 1. The problem, precisely
 
 Clients don't lack image generators; they lack a **translator**. The value locked in a person, product, or occasion — an advocate's courtroom gravitas, a kettle's heft, a wedding's lineage — rarely survives the trip into a designed object. Human studios that do this well are slow and expensive. Raw gen-AI is fast but produces generic, unjudged, unprintable output. AURA's job is the translation itself, industrialized without losing taste.

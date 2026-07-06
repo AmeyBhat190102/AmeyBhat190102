@@ -38,15 +38,19 @@ _ADVOCATE_CARD_HTML = """<!doctype html><html><head><style>
 
 
 class MockLLM:
-    """Returns fixtures keyed by output-model name; synthesizes anything else."""
+    """Returns fixtures keyed by output-model name; synthesizes anything else.
+    Tests can override any fixture per-instance (e.g. to force a blocking
+    clarifying question or a studio-tier flow)."""
 
-    def __init__(self) -> None:
+    def __init__(self, overrides: dict[str, Any] | None = None) -> None:
         self.calls: list[str] = []
+        self.overrides = overrides or {}
 
     async def structured(self, *, system: str, prompt: str, output_model: type[T],
                          images: list[str] | None = None) -> T:
         self.calls.append(output_model.__name__)
-        fixture = _FIXTURES.get(output_model.__name__)
+        fixture = self.overrides.get(output_model.__name__,
+                                     _FIXTURES.get(output_model.__name__))
         if fixture is not None:
             data = fixture(prompt) if callable(fixture) else fixture
             return output_model.model_validate(data)
@@ -204,3 +208,70 @@ def _extract(prompt: str, key: str) -> str | None:
         if key in line and ":" in line:
             return line.split(":", 1)[1].strip().strip('",')
     return None
+
+
+# --- dynamic-planning fixtures ---------------------------------------------
+
+def _direction(i: int, name: str, thesis: str, risk: str) -> dict:
+    return {"name": name, "thesis": thesis,
+            "how_it_expresses_aura": "Translates restraint-as-status into form.",
+            "differentiator": f"Territory #{i}: {name.lower()} register.",
+            "risk_level": risk}
+
+
+_FIXTURES["WorkPlan"] = {
+    "rationale": "Typography carries this artifact; cast a type specialist and a "
+                 "motif illustrator first, then four distinct design territories.",
+    "tasks": [
+        {"task_id": "type1", "role_key": "calligraphy_specialist",
+         "title": "Type system", "instructions": "Design the exact typographic system.",
+         "budget_usd": 0.1},
+        {"task_id": "motif1", "role_key": "motif_illustrator",
+         "title": "Signature motifs", "instructions": "Two motifs owned by this subject.",
+         "budget_usd": 0.3, "criticality": "optional"},
+        *[
+            {"task_id": f"design{i}", "role_key": "layout_designer",
+             "title": f"Design: {name}",
+             "instructions": f"Design the artifact in this territory: {thesis}",
+             "depends_on": ["type1", "motif1"],
+             "input_bindings": {"type_plan": "type1", "motifs": "motif1"},
+             "budget_usd": 0.5,
+             "direction": _direction(i, name, thesis, risk)}
+            for i, (name, thesis, risk) in enumerate([
+                ("Counsel in Ink", "Quiet authority: letterpress restraint.", "safe"),
+                ("The Gold Standard", "Earned gravitas: charcoal and hairline gold.", "balanced"),
+                ("Brief & Verdict", "Editorial modernism on a strict grid.", "balanced"),
+                ("Statute Modern", "Bold subversion: swiss type, fearless.", "bold"),
+            ], start=1)
+        ],
+    ],
+    "total_budget_usd": 5.0,
+}
+
+_FIXTURES["TypographyPlan"] = {
+    "pairing": {"display_family": "Cormorant Garamond", "body_family": "Inter",
+                "rationale": "Transitional gravitas over neutral clarity."},
+    "name_treatment": "small caps, +120 tracking, 2.1em",
+    "hierarchy": ["name 2.1em small caps", "title 0.85em uppercase +340 tracking",
+                  "contact 0.78em sentence case"],
+    "flourishes": "hairline gradient rules only; no swashes.",
+}
+
+_FIXTURES["MotifSet"] = {
+    "motifs": [
+        {"name": "Pillared portico", "meaning": "The court itself: permanence, shelter of law.",
+         "image_prompt": "minimal engraving of a classical courthouse portico, flat, "
+                         "single ink color, solid ivory background, no text",
+         "placement_hint": "reverse side, centered"},
+        {"name": "Double rule", "meaning": "The line under a verdict.",
+         "image_prompt": "two thin horizontal gold lines, flat, solid dark background, no text",
+         "placement_hint": "under the name"},
+    ],
+    "style_note": "single-hand engraving style, restrained",
+}
+
+_FIXTURES["CopyDeck"] = {
+    "language": "en",
+    "blocks": [{"slot": "tagline", "text": "Counsel. Considered.", "tone_note": "spare"}],
+    "pronunciation_or_transliteration_notes": "",
+}

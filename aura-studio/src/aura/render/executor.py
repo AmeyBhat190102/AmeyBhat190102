@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Callable
 
 from aura.config import Providers
 from aura.render.html_renderer import png_dimensions_for
@@ -20,13 +21,23 @@ from aura.storage import ArtifactStore
 
 async def render_candidate(providers: Providers, store: ArtifactStore, *,
                            brief: DesignBrief, direction: ConceptDirection,
-                           spec: DesignSpec, revision: int = 0) -> Candidate:
+                           spec: DesignSpec, revision: int = 0,
+                           asset_substitutions: dict[str, str] | None = None,
+                           on_artifact: Callable[[str, str], None] | None = None) -> Candidate:
+    """asset_substitutions maps placeholder tokens (e.g. __MOTIF_0__) in spec
+    HTML to files on disk, inlined as data URIs at render time. on_artifact
+    fires per saved file — the theater's thumbnail moment."""
     artifact = ARTIFACT_TYPES[brief.artifact_type_key]
     candidate = Candidate(direction=direction, spec=spec, revision=revision)
     tag = f"{direction.direction_id}-r{revision}"
 
+    def _saved(kind: str, path: str) -> str:
+        if on_artifact:
+            on_artifact(kind, path)
+        return path
+
     if isinstance(spec, LayoutSpec):
-        html = spec.html
+        html = _substitute_assets(spec.html, asset_substitutions)
         if spec.background_image_prompt:
             art = await providers.image_gen.generate(
                 prompt=spec.background_image_prompt, width=1024, height=1024)
@@ -35,8 +46,10 @@ async def render_candidate(providers: Providers, store: ArtifactStore, *,
         png = await providers.renderer.render_png(html=html, width_px=w_px, height_px=h_px)
         pdf = await providers.renderer.render_pdf(
             html=html, width_mm=artifact.width_mm or 89, height_mm=artifact.height_mm or 51)
-        candidate.preview_paths = [store.save(brief.project_id, f"{tag}.png", png)]
-        candidate.print_pdf_path = store.save(brief.project_id, f"{tag}.pdf", pdf)
+        candidate.preview_paths = [_saved("preview_png",
+                                          store.save(brief.project_id, f"{tag}.png", png))]
+        candidate.print_pdf_path = _saved("print_pdf",
+                                          store.save(brief.project_id, f"{tag}.pdf", pdf))
 
     elif isinstance(spec, ImagePromptSpec):
         art = await providers.image_gen.generate(
@@ -45,11 +58,13 @@ async def render_candidate(providers: Providers, store: ArtifactStore, *,
         if spec.overlay_html:
             # Composite in the browser: art becomes the background layer of the
             # type overlay, rendered together at exact pixel size.
-            html = _inject_background(spec.overlay_html, art, "cover")
+            html = _inject_background(
+                _substitute_assets(spec.overlay_html, asset_substitutions), art, "cover")
             art = await providers.renderer.render_png(
                 html=html, width_px=artifact.width_px or 1024,
                 height_px=artifact.height_px or 1024)
-        candidate.preview_paths = [store.save(brief.project_id, f"{tag}.png", art)]
+        candidate.preview_paths = [_saved("preview_png",
+                                          store.save(brief.project_id, f"{tag}.png", art))]
 
     elif isinstance(spec, VideoShotListSpec):
         source = next((a.path for a in brief.assets if a.asset_id == spec.source_asset_id),
@@ -59,12 +74,25 @@ async def render_candidate(providers: Providers, store: ArtifactStore, *,
             mp4 = await providers.video_gen.generate(
                 prompt=shot.prompt, source_image=source, duration_s=shot.duration_s,
                 width=artifact.width_px or 1920, height=artifact.height_px or 1080)
-            clips.append(store.save(brief.project_id, f"{tag}-shot{shot.order}.mp4", mp4))
+            clips.append(_saved("video",
+                                store.save(brief.project_id, f"{tag}-shot{shot.order}.mp4", mp4)))
         final = _stitch(clips)
         candidate.preview_paths = (
-            [store.save(brief.project_id, f"{tag}.mp4", final)] if final else clips)
+            [_saved("video", store.save(brief.project_id, f"{tag}.mp4", final))]
+            if final else clips)
 
     return candidate
+
+
+def _substitute_assets(html: str, substitutions: dict[str, str] | None) -> str:
+    """Inline placeholder tokens (__MOTIF_0__ etc.) as data URIs so generated
+    motifs/logos land inside deterministic layouts."""
+    for token, path in (substitutions or {}).items():
+        if token in html:
+            data_uri = ("data:image/png;base64,"
+                        + base64.b64encode(Path(path).read_bytes()).decode())
+            html = html.replace(token, data_uri)
+    return html
 
 
 def _inject_background(html: str, png: bytes, placement: str) -> str:

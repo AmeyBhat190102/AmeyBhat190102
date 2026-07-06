@@ -5,3 +5,5 @@ artifacts/
 .env
 .pytest_cache/
 uv.lock
+*.db
+aura.db

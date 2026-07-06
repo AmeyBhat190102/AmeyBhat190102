@@ -23,7 +23,8 @@ from aura.agents.curator import select_diverse
 
 @pytest.fixture
 def providers() -> Providers:
-    return Providers(llm=MockLLM(), image_gen=MockImageGen(),
+    llm = MockLLM()
+    return Providers(llm=llm, judge=llm, image_gen=MockImageGen(),
                      video_gen=MockVideoGen(), renderer=PlaywrightRenderer())
 
 

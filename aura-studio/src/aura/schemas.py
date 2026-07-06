@@ -115,6 +115,7 @@ class ClarifyingQuestion(BaseModel):
     question: str
     why_it_matters: str
     default_assumption: str                    # what we proceed with if unanswered
+    blocking: bool = False                     # True => pause the run and ask the client
 
 
 class DesignBrief(BaseModel):
@@ -271,3 +272,40 @@ class DeliverablePackage(BaseModel):
     selected: list[Candidate]
     rationales: list[RationaleCard]
     rejected_count: int
+
+
+# ---------------------------------------------------------------------------
+# Human-in-the-loop interrupt payloads
+# ---------------------------------------------------------------------------
+
+class ClarifyRequest(BaseModel):
+    """Raised mid-run when intake found blocking unknowns; the run pauses
+    until the client answers (or explicitly accepts the defaults)."""
+
+    kind: Literal["clarify"] = "clarify"
+    project_id: str
+    questions: list[ClarifyingQuestion]
+
+
+class ClarifyResponse(BaseModel):
+    answers: dict[str, str] = Field(default_factory=dict)  # question -> answer
+    accept_defaults: bool = False
+
+
+class ReviewRequest(BaseModel):
+    """Studio-tier gate: a human editor sees the gallery before the client."""
+
+    kind: Literal["studio_review"] = "studio_review"
+    project_id: str
+    candidate_ids: list[str]
+    preview_paths: dict[str, list[str]] = Field(default_factory=dict)
+
+
+class ReviewDecision(BaseModel):
+    candidate_id: str
+    action: Literal["approve", "revise", "reject"]
+    notes: str = ""
+
+
+class ReviewResponse(BaseModel):
+    decisions: list[ReviewDecision]

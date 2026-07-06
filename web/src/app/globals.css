@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  /* The studio's own aura: dark gallery, ivory type, one gold accent —
+     the same design language our demo card speaks. */
+  --ink: #14100c;
+  --ink-soft: #1d1812;
+  --ink-raised: #262019;
+  --ivory: #e8ddc8;
+  --ivory-bright: #f2ead6;
+  --ivory-dim: #cbbfa4;
+  --gold: #b08d4f;
+  --gold-bright: #d4af6a;
+  --crimson: #8d3b2e;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-raised: var(--ink-raised);
+  --color-ivory: var(--ivory);
+  --color-ivory-bright: var(--ivory-bright);
+  --color-ivory-dim: var(--ivory-dim);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-crimson: var(--crimson);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+body {
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+@keyframes develop {
+  from { opacity: 0; filter: blur(10px) sepia(0.6); transform: scale(0.98); }
+  to { opacity: 1; filter: blur(0) sepia(0); transform: scale(1); }
+}
+
+.develop {
+  animation: develop 1.4s ease-out both;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--ink);
+}
