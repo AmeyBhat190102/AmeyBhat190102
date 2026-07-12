@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keepsake · Agent Ops</title>
+<style>
+  :root{
+    --bg:#1B1815; --panel:#242019; --panel2:#2B261E; --line:#3A342B;
+    --ink:#EDE7DA; --dim:#A79E8D; --brass:#C9A227; --green:#7FA968; --red:#C25B4E; --amber:#D9A03F;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+  .brand{font-weight:700;letter-spacing:.3px}
+  .brand small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim)}
+  main{max-width:1180px;margin:0 auto;padding:18px;display:grid;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  h2{font-size:12px;font-family:var(--mono);letter-spacing:2.5px;color:var(--brass);margin:0 0 12px;text-transform:uppercase}
+  .grid{display:grid;gap:12px}
+  @media(min-width:880px){.cols2{grid-template-columns:1fr 1fr}}
+  button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);
+    background:transparent;color:var(--ink);padding:7px 12px}
+  button.primary{background:var(--brass);border-color:var(--brass);color:#1B1610;font-weight:700}
+  button.danger{color:var(--red);border-color:var(--red)}
+  button:disabled{opacity:.45;cursor:default}
+  input,select,textarea{font:inherit;background:#171410;color:var(--ink);border:1px solid var(--line);
+    border-radius:8px;padding:7px 10px}
+  textarea{width:100%;resize:vertical}
+  table{width:100%;border-collapse:collapse}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--dim);text-align:left;
+     padding:6px 8px;border-bottom:1px solid var(--line);text-transform:uppercase}
+  td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:hover td{background:var(--panel2)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:7px;vertical-align:baseline}
+  .g{background:var(--green)} .y{background:var(--amber)} .r{background:var(--red)} .n{background:var(--dim)}
+  .kpi{display:flex;flex-wrap:wrap;gap:10px}
+  .kpi>div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 13px;min-width:118px}
+  .kpi b{display:block;font-size:19px;margin-top:2px}
+  .kpi span{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .pill{font-family:var(--mono);font-size:10px;letter-spacing:1px;border:1px solid var(--line);
+    border-radius:99px;padding:2px 8px;color:var(--dim)}
+  .press{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+  .press>div{flex:1;min-width:86px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;border-top:3px solid var(--brass)}
+  .press b{font-size:17px} .press span{font-family:var(--mono);font-size:9.5px;letter-spacing:1.2px;color:var(--dim)}
+  .fit{color:var(--dim);font-size:12.5px;max-width:420px}
+  .score{font-family:var(--mono);font-weight:700}
+  .s-hi{color:var(--green)} .s-mid{color:var(--amber)} .s-lo{color:var(--red)}
+  #drawer{position:fixed;right:0;top:0;bottom:0;width:min(520px,94vw);background:var(--panel);
+    border-left:1px solid var(--line);transform:translateX(105%);transition:transform .18s;padding:16px;overflow:auto;z-index:9}
+  #drawer.open{transform:none}
+  .msg{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:8px 0;white-space:pre-wrap;font-size:13px}
+  .msg.in{background:var(--panel2)} .msg.out{background:#1F2A20;border-color:#33452F}
+  .msg small{display:block;font-family:var(--mono);font-size:9.5px;color:var(--dim);letter-spacing:1px;margin-bottom:5px}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--brass);color:#1B1610;
+    font-weight:700;padding:9px 16px;border-radius:10px;display:none;z-index:10}
+  .warnbar{border:1px solid var(--red);color:var(--red);border-radius:10px;padding:9px 12px;display:none}
+  @media(prefers-reduced-motion:reduce){#drawer{transition:none}}
+  a{color:var(--brass)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Keepsake Press <small>SALES AGENT · OPS</small></div>
+  <div class="row-actions">
+    <span class="pill" id="autonomyPill">autonomy –</span>
+    <select id="autonomySel" title="Autonomy level">
+      <option value="0">Level 0 · approve everything</option>
+      <option value="1">Level 1 · openers auto</option>
+      <option value="2">Level 2 · full auto</option>
+    </select>
+    <button id="pauseBtn" class="danger">Pause</button>
+    <button id="refreshBtn">Refresh</button>
+  </div>
+</header>
+
+<main>
+  <div class="warnbar" id="warnbar"></div>
+
+  <section class="card">
+    <h2>Is it running properly?</h2>
+    <div class="kpi" id="health"></div>
+    <div style="margin-top:14px">
+      <span class="pill">pipeline</span>
+      <div class="press" id="press"></div>
+    </div>
+  </section>
+
+  <div class="grid cols2">
+    <section class="card">
+      <h2>Generate leads</h2>
+      <div class="row-actions" style="align-items:center">
+        <select id="lgSeg">
+          <option value="trek_operator">Trek operators</option>
+          <option value="wedding_planner">Wedding planners</option>
+          <option value="corporate_gifting">Corporate gifting</option>
+        </select>
+        <input id="lgN" type="number" value="25" min="1" max="100" style="width:74px" title="How many">
+        <input id="lgKw" placeholder="keywords (optional, playbook default)" style="flex:1;min-width:180px">
+        <button class="primary" id="lgRun">Source &amp; score</button>
+      </div>
+      <div id="lgOut" style="margin-top:10px;color:var(--dim);font-family:var(--mono);font-size:12px"></div>
+      <div style="margin-top:8px;color:var(--dim);font-size:12.5px">
+        Sourcing never contacts anyone. New leads land below for your review.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Awaiting your approval <span class="pill" id="apCount">0</span></h2>
+      <div id="approvals"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Review queue · sourced leads <span class="pill" id="rvCount">0</span></h2>
+    <table><thead><tr><th>Lead</th><th>Score</th><th>Why / flags</th><th></th></tr></thead>
+      <tbody id="review"></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>Escalations · your call <span class="pill" id="escCount">0</span></h2>
+    <div id="escalations"></div>
+  </section>
+
+  <section class="card">
+    <h2>Live pipeline</h2>
+    <div class="row-actions" style="margin-bottom:10px">
+      <select id="plState">
+        <option value="">All active</option>
+        <option>QUEUED</option><option>CONTACTED</option><option>ENGAGED</option>
+        <option>BOOKING</option><option>ESCALATED</option><option>CALL_BOOKED</option>
+        <option>HANDED_OFF</option><option>NOT_NOW</option><option>LOST</option>
+      </select>
+    </div>
+    <table><thead><tr><th>Lead</th><th>Segment</th><th>State</th><th>Touches</th><th>Updated</th></tr></thead>
+      <tbody id="pipeline"></tbody></table>
+  </section>
+</main>
+
+<aside id="drawer">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <h2 id="dTitle">Thread</h2><button onclick="drawer.classList.remove('open')">Close</button>
+  </div>
+  <div id="dSummary" style="color:var(--dim);font-size:12.5px;margin-bottom:8px"></div>
+  <div id="dThread"></div>
+</aside>
+<div id="toast"></div>
+
+<script>
+const S = new URLSearchParams(location.search).get('secret') || '';
+const $ = id => document.getElementById(id);
+const drawer = $('drawer');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function api(path, method='GET'){
+  const url = path + (path.includes('?') ? '&' : '?') + 'secret=' + encodeURIComponent(S);
+  const r = await fetch(url, {method});
+  if (r.status === 401) { $('warnbar').style.display='block';
+    $('warnbar').textContent = 'Unauthorized. Open this page as /dashboard?secret=YOUR_WEBHOOK_SECRET'; throw new Error('401'); }
+  return r.json().catch(() => ({}));
+}
+function toast(t){ const el=$('toast'); el.textContent=t; el.style.display='block';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none', 2600); }
+const ago = iso => { if(!iso) return '–'; const s=(Date.now()-new Date(iso))/1000;
+  return s<90?Math.round(s)+'s':s<5400?Math.round(s/60)+'m':Math.round(s/3600)+'h'; };
+const kpi = (label, val, cls, hint) =>
+  `<div title="${esc(hint||'')}"><span>${label}</span><b><i class="dot ${cls}"></i>${esc(val)}</b></div>`;
+
+// ---------- health ----------
+async function loadMetrics(){
+  const m = await api('/metrics'); window._m = m;
+  $('pauseBtn').textContent = m.paused ? 'Resume' : 'Pause';
+  $('pauseBtn').className = m.paused ? 'primary' : 'danger';
+  $('autonomyPill').textContent = 'autonomy L' + m.autonomy;
+  $('autonomySel').value = String(m.autonomy);
+
+  const hbAge = m.worker_heartbeat ? (Date.now()-new Date(m.worker_heartbeat))/1000 : 1e9;
+  const hbCls = hbAge < 90 ? 'g' : 'r';
+  const jobCls = (m.jobs_failed===0 && m.jobs_overdue===0) ? 'g' : (m.jobs_failed? 'r':'y');
+  const sendCls = m.failed_24h===0 ? 'g' : m.failed_24h<=2 ? 'y':'r';
+  const rr = m.reply_rate_7d, rrCls = rr==null?'n': rr>=2?'g': rr>=1?'y':'r';
+  const ar = m.approval_rate_7d, arCls = ar==null?'n': ar>=80?'g': ar>=60?'y':'r';
+  const qcCls = m.qc_blocked_7d<=1 ? 'g':'y';
+  const slAge = m.last_webhook?.smartlead, waAge = m.last_webhook?.whatsapp;
+  const hookCls = (m.sent_24h>0 && !slAge && !waAge) ? 'y' : 'g';
+
+  $('health').innerHTML =
+    kpi('worker', hbAge<1e8 ? ago(m.worker_heartbeat)+' ago' : 'no heartbeat', hbCls, 'red = start python -m app.worker') +
+    kpi('sent 24h', m.sent_24h, sendCls, m.failed_24h+' failed sends') +
+    kpi('replies 24h', m.replies_24h, hookCls, 'yellow = sending but no reply webhooks seen; check Smartlead/WA webhook config') +
+    kpi('reply rate 7d', rr==null?'–':rr+'%', rrCls, 'green ≥2% · yellow 1-2% · red <1% after ~50 contacted') +
+    kpi('draft approval 7d', ar==null?'–':ar+'%', arCls, '≥80% for two weeks = promote autonomy') +
+    kpi('QC blocks 7d', m.qc_blocked_7d, qcCls, 'rising = expand CLAIMS or inspect drafts') +
+    kpi('jobs', (m.jobs_failed||0)+' failed / '+(m.jobs_overdue||0)+' overdue', jobCls, 'overdue = worker stalled') +
+    kpi('calls booked', m.booked_total, m.booked_total>0?'g':'n', 'the only number that matters weekly');
+
+  const order = ['SOURCED','QUEUED','CONTACTED','ENGAGED','BOOKING','ESCALATED','CALL_BOOKED','HANDED_OFF','NOT_NOW','LOST','OPTED_OUT'];
+  $('press').innerHTML = order.map(s =>
+    `<div><span>${s.replace('_',' ')}</span><br><b>${m.states?.[s]||0}</b></div>`).join('');
+  $('escCount').textContent = m.open_escalations; $('apCount').textContent = m.pending_approvals;
+}
+
+// ---------- review queue ----------
+async function loadReview(){
+  const rows = await api('/leads?state=SOURCED&limit=100');
+  $('rvCount').textContent = rows.length;
+  $('review').innerHTML = rows.map(l => {
+    const sc = l.score ?? 50, cls = sc>=80?'s-hi':sc>=60?'s-mid':'s-lo';
+    const f = l.facts||{};
+    return `<tr>
+      <td><b>${esc(l.name||'—')}</b><br><span style="color:var(--dim)">${esc(l.role||'')} · ${esc(l.company||'')}</span>
+          <br><span style="color:var(--dim);font-size:12px">${esc(l.email||l.phone||'')}</span></td>
+      <td class="score ${cls}">${sc}</td>
+      <td class="fit">${esc(f.fit||f.research||'')}${(f.flags&&f.flags.length)?'<br><span class="s-lo">⚠ '+esc(f.flags.join(' · '))+'</span>':''}</td>
+      <td class="row-actions">
+        <button class="primary" onclick="queueLead('${l.id}')">Approve → queue</button>
+        <button class="danger" onclick="rejectLead('${l.id}')">Reject</button>
+      </td></tr>`;
+  }).join('') || '<tr><td colspan="4" style="color:var(--dim)">Nothing to review. Hit “Source &amp; score”.</td></tr>';
+}
+async function queueLead(id){ await api('/leads/'+id+'/queue','POST'); toast('Queued for outreach'); refresh(); }
+async function rejectLead(id){ await api('/leads/'+id+'/reject','POST'); toast('Rejected'); refresh(); }
+
+// ---------- approvals ----------
+async function loadApprovals(){
+  const rows = await api('/approvals');
+  $('approvals').innerHTML = rows.map(m => `
+    <div class="msg out"><small>${esc(m.purpose||'message')} · ${esc(m.channel)} → ${esc(m.name||m.company||'')}</small>
+      ${m.subject?('<b>'+esc(m.subject)+'</b>\n'):''}
+      <textarea id="ap-${m.id}" rows="7" style="margin-top:6px">${esc(m.body)}</textarea>
+      <div class="row-actions" style="margin-top:8px">
+        <button class="primary" onclick="approveMsg('${m.id}')">Approve &amp; send</button>
+        <button class="danger" onclick="rejectMsg('${m.id}')">Reject</button>
+        <span class="pill">edits are tracked · unchanged approvals earn autonomy</span>
+      </div></div>`).join('') || '<div style="color:var(--dim)">Nothing pending.</div>';
+}
+async function approveMsg(id){
+  const body = ($('ap-'+id)?.value||'').trim();
+  const r = await fetch('/approve/'+id+'?secret='+encodeURIComponent(S), {method:'POST',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({body})});
+  const out = await r.json().catch(()=>({}));
+  toast(out.edited ? 'Sent (edited — counts against approval rate)' : 'Sent'); refresh();
+}
+async function rejectMsg(id){ await api('/reject/'+id); toast('Rejected'); refresh(); }
+
+// ---------- escalations ----------
+async function loadEsc(){
+  const rows = await api('/escalations');
+  $('escalations').innerHTML = rows.map(e => `
+    <div class="msg in"><small>${esc(e.reason)} · ${esc(e.name||'')} · ${esc(e.company||'')}</small>${esc(e.context)}
+      ${e.suggestion?'<div class="msg out" style="margin:8px 0 0"><small>agent suggests</small>'+esc(e.suggestion)+'</div>':''}
+      <textarea id="esc-${e.id}" rows="2" placeholder="Your instruction for the reply (or leave blank and use the suggestion)"
+        style="margin-top:8px">${esc(e.suggestion||'')}</textarea>
+      <div class="row-actions" style="margin-top:8px">
+        <button class="primary" onclick="resolveEsc('${e.id}',false)">Send with my instruction</button>
+        <button onclick="resolveEsc('${e.id}',true)">Dismiss</button>
+        <button onclick="openThread('${e.lead_id}')">Thread</button>
+      </div></div>`).join('') || '<div style="color:var(--dim)">No open escalations.</div>';
+}
+async function resolveEsc(id, dismiss){
+  const instruction = ($('esc-'+id)?.value||'').trim();
+  await fetch('/escalations/'+id+'/resolve?secret='+encodeURIComponent(S), {method:'POST',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({instruction, dismiss})});
+  toast(dismiss?'Dismissed':'Reply dispatched'); refresh();
+}
+
+// ---------- pipeline + thread ----------
+async function loadPipeline(){
+  const st = $('plState').value;
+  const rows = await api('/leads' + (st?'?state='+st:''));
+  const active = st ? rows : rows.filter(l => !['SOURCED'].includes(l.state));
+  $('pipeline').innerHTML = active.slice(0,120).map(l => `
+    <tr onclick="openThread('${l.id}')" style="cursor:pointer">
+      <td><b>${esc(l.name||'—')}</b> <span style="color:var(--dim)">· ${esc(l.company||'')}</span></td>
+      <td>${esc(l.segment)}</td><td><span class="pill">${esc(l.state)}</span></td>
+      <td>${l.sequence_step}</td><td style="color:var(--dim)">${ago(l.updated_at)}</td></tr>`).join('')
+    || '<tr><td colspan="5" style="color:var(--dim)">Empty.</td></tr>';
+}
+async function openThread(id){
+  const d = await api('/leads/'+id);
+  $('dTitle').textContent = (d.lead.name||'Lead') + ' · ' + (d.lead.company||'');
+  $('dSummary').textContent = d.lead.summary || '';
+  $('dThread').innerHTML = d.thread.map(m => `
+    <div class="msg ${m.direction}"><small>${m.direction==='in'?'THEM':'AGENT'} · ${esc(m.channel)}${m.intent?' · '+esc(m.intent):''}</small>${m.subject?('<b>'+esc(m.subject)+'</b>\n'):''}${esc(m.body)}</div>`).join('');
+  drawer.classList.add('open');
+}
+
+// ---------- controls ----------
+$('pauseBtn').onclick = async () => { await api(window._m?.paused?'/admin/resume':'/admin/pause','POST'); refresh(); };
+$('autonomySel').onchange = async e => { await api('/admin/autonomy/'+e.target.value,'POST'); toast('Autonomy L'+e.target.value); refresh(); };
+$('refreshBtn').onclick = () => refresh();
+$('plState').onchange = loadPipeline;
+$('lgRun').onclick = async () => {
+  $('lgRun').disabled = true; $('lgOut').textContent = 'Sourcing…';
+  const kw = $('lgKw').value.trim();
+  const out = await api(`/leadgen/run?segment=${$('lgSeg').value}&n=${$('lgN').value}`
+    + (kw?('&keywords='+encodeURIComponent(kw)):''), 'POST');
+  $('lgOut').textContent = out.error ? ('✗ ' + out.error)
+    : `✓ fetched ${out.fetched} · added ${out.added} · scored ${out.scored} · dupes ${out.duplicates}`;
+  $('lgRun').disabled = false; loadReview(); loadMetrics();
+};
+
+function refresh(){ loadMetrics(); loadReview(); loadApprovals(); loadEsc(); loadPipeline(); }
+refresh(); setInterval(loadMetrics, 30000); setInterval(loadApprovals, 30000);
+</script>
+</body>
+</html>

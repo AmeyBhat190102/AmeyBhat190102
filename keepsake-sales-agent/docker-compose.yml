@@ -1,0 +1,41 @@
+# The whole machine on one box: postgres + api + worker.
+#   cp .env.example .env   (fill it in)
+#   docker compose up -d --build
+#   docker compose exec -T db psql -U keepsake keepsake < schema.sql
+# Put a TLS reverse proxy (Caddy/nginx) in front of :8000 and point
+# Smartlead / Meta / Cal.com webhooks at $BASE_URL/webhooks/...
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: keepsake
+      POSTGRES_PASSWORD: keepsake
+      POSTGRES_DB: keepsake
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keepsake"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: python -m app.worker
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:

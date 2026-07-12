@@ -2,6 +2,8 @@
 
 *Based on a full read of the v1 codebase (`keepsakesalesagent.zip`, ~2,000 LOC) and the operator RUNBOOK. Date: 2026-07-12.*
 
+> **Status update (same day):** Phase 0 is implemented in this repo — all §2 audit items are fixed, plus two more found while building the dry run: the post-handoff booking confirmation was blocked by the terminal-state check, and per-lead pacing (20h min-gap, 2/day cap) was throttling conversational replies, not just cold touches. 60 unit tests and a 34-check end-to-end dry run (`python -m scripts.dry_run`) pass. See `DEPLOYMENT.md` for the server story.
+
 ---
 
 ## 1. What the product is
