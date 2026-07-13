@@ -27,16 +27,20 @@ export function PrimaryAction({
       }}
       disabled={disabled}
       android_ripple={ripple()}
+      // Disarmed, the bar goes quiet — hairline and dim ivory, never dimmed
+      // gold. Identical metrics either way, so nothing jumps when it arms.
       style={({ pressed }) => ({
-        backgroundColor: colors.gold,
+        backgroundColor: disabled ? "transparent" : colors.gold,
+        borderWidth: 1,
+        borderColor: disabled ? colors.hairline : colors.gold,
         borderRadius: radius.sm,
-        paddingVertical: select({ ios: spacing.md, android: spacing.md }),
+        paddingVertical: select({ ios: spacing.md, android: spacing.md }) - 1,
         minHeight: select<number | undefined>({ ios: undefined, android: 48 }),
         justifyContent: "center",
         alignItems: "center",
         // Clip the ripple to the bar's corners on Android.
         overflow: select<"visible" | "hidden">({ ios: "visible", android: "hidden" }),
-        opacity: disabled ? 0.35 : pressed ? pressedOpacity : 1,
+        opacity: !disabled && pressed ? pressedOpacity : 1,
       })}
     >
       <Text
@@ -44,7 +48,7 @@ export function PrimaryAction({
           fontFamily: fonts.bodyMedium,
           fontSize: 14,
           letterSpacing: 0.8,
-          color: colors.ink,
+          color: disabled ? colors.ivoryDim : colors.ink,
         }}
       >
         {label}

@@ -33,9 +33,9 @@ export function GalleryPiece({
 }) {
   // iOS: pressed-opacity. Android: ivory ripple, 48dp claim button.
   const pressedOpacity = select({ ios: 0.6, android: 1 });
-  // GalleryPiece hangs inside ScreenShell's editorial margins.
+  // The plate hangs full-bleed — it breaks out of ScreenShell's editorial
+  // margins, framed only by a top/bottom hairline pair (a rule, not a box).
   const { width: windowWidth } = useWindowDimensions();
-  const imageWidth = windowWidth - spacing.lg * 2;
   return (
     <View>
       {piece.preview_artifact_ids.map((artifactId) => (
@@ -49,9 +49,12 @@ export function GalleryPiece({
           resizeMode="cover"
           accessibilityLabel={piece.direction.name}
           style={{
-            width: imageWidth,
-            height: Math.round(imageWidth / CARD_ASPECT),
-            borderRadius: radius.sm,
+            width: windowWidth,
+            height: Math.round(windowWidth / CARD_ASPECT),
+            marginHorizontal: -spacing.lg,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: colors.hairline,
             backgroundColor: colors.inkSoft,
           }}
         />

@@ -26,18 +26,21 @@ export function QuietBack({ label, onPress }: { label: string; onPress: () => vo
       <Text
         style={{
           fontFamily: fonts.body,
-          fontSize: select({ ios: 20, android: 18 }),
+          fontSize: select({ ios: 20, android: 16 }),
           lineHeight: 20,
           color: colors.gold,
           marginRight: spacing.xs,
-          marginTop: select({ ios: -2, android: -1 }),
+          marginTop: select({ ios: -2, android: 0 }),
         }}
       >
-        {"‹"}
+        {select({ ios: "‹", android: "←" })}
       </Text>
-      <Text style={{ fontFamily: fonts.body, fontSize: 14, color: colors.ivoryDim }}>
-        {label}
-      </Text>
+      {/* Android speaks with the arrow alone — no word beside it. */}
+      {select<string | undefined>({ ios: label, android: undefined }) ? (
+        <Text style={{ fontFamily: fonts.body, fontSize: 14, color: colors.ivoryDim }}>
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }

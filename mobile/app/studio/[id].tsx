@@ -55,7 +55,7 @@ export default function Studio() {
 
   const back = (
     <QuietBack
-      label="Studio"
+      label="Back"
       onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
     />
   );

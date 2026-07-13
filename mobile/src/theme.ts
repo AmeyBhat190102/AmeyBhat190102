@@ -2,8 +2,6 @@
  * website speaks (web/src/app/globals.css): dark gallery, ivory type, one
  * gold accent used like foil. Platform code must draw ONLY from here. */
 
-import { Platform } from "react-native";
-
 export const colors = {
   ink: "#14100c",        // the room — warm near-black, never pure black
   inkSoft: "#1d1812",
@@ -37,9 +35,3 @@ export const label = {
 export const spacing = { xs: 6, sm: 10, md: 16, lg: 24, xl: 36, xxl: 56 } as const;
 
 export const radius = { sm: 4, md: 6 } as const;
-
-/** Platform voice: identical brand, native rhythm. */
-export const platform = Platform.select({
-  ios: { pressedOpacity: 0.6, headerBlur: true },
-  default: { pressedOpacity: 0.8, headerBlur: false },
-});
