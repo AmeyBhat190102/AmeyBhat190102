@@ -5,6 +5,7 @@
 import { Pressable, Text, View } from "react-native";
 import { tapPick } from "../haptics";
 import { select } from "../platformHint";
+import { ripple } from "../ripple";
 import { colors, fonts, label, spacing } from "../theme";
 import { DisplayText } from "./DisplayText";
 import { Hairline } from "./GoldRule";
@@ -22,7 +23,8 @@ export function EditorialRow({
   selected?: boolean;
   onPress?: () => void;
 }) {
-  const pressedOpacity = select({ ios: 0.55, android: 0.75 });
+  // iOS speaks in pressed-opacity; Android answers with an ivory ripple.
+  const pressedOpacity = select({ ios: 0.55, android: 1 });
   return (
     <View>
       <Hairline />
@@ -36,7 +38,7 @@ export function EditorialRow({
             : undefined
         }
         disabled={!onPress}
-        // Android agent: replace pressed-opacity with android_ripple (ivory 10%).
+        android_ripple={ripple()}
         style={({ pressed }) => ({
           paddingVertical: select({ ios: spacing.lg, android: spacing.lg }),
           flexDirection: "row",

@@ -1,17 +1,20 @@
 /** The quiet way back — a chevron and a word, top-left, never a button.
- * iOS voice; Android placeholder stays close (system back is the Android
- * agent's concern). */
+ * On Android it mirrors system back (hardware/gesture back does the same
+ * thing) and answers touch with a borderless ivory halo, the native voice
+ * for small quiet affordances. Extra hitSlop lifts the target past 48dp. */
 
 import { Pressable, Text } from "react-native";
 import { select } from "../platformHint";
+import { rippleBorderless } from "../ripple";
 import { colors, fonts, spacing } from "../theme";
 
 export function QuietBack({ label, onPress }: { label: string; onPress: () => void }) {
-  const pressedOpacity = select({ ios: 0.5, android: 0.7 });
+  const pressedOpacity = select({ ios: 0.5, android: 1 });
   return (
     <Pressable
       onPress={onPress}
-      hitSlop={12}
+      hitSlop={select({ ios: 12, android: 16 })}
+      android_ripple={rippleBorderless()}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",

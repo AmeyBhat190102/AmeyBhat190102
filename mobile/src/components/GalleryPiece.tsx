@@ -7,6 +7,7 @@ import { fileUrl } from "../api";
 import { RISK_LABELS } from "../copy";
 import { tapConfirm } from "../haptics";
 import { select } from "../platformHint";
+import { ripple } from "../ripple";
 import { SAMPLE_CARD, SelectedCandidate } from "../sample";
 import { colors, fonts, radius, spacing } from "../theme";
 import { DisplayText } from "./DisplayText";
@@ -30,7 +31,8 @@ export function GalleryPiece({
   picked: boolean;
   onPick: () => void;
 }) {
-  const pressedOpacity = select({ ios: 0.6, android: 0.8 });
+  // iOS: pressed-opacity. Android: ivory ripple, 48dp claim button.
+  const pressedOpacity = select({ ios: 0.6, android: 1 });
   // GalleryPiece hangs inside ScreenShell's editorial margins.
   const { width: windowWidth } = useWindowDimensions();
   const imageWidth = windowWidth - spacing.lg * 2;
@@ -104,15 +106,20 @@ export function GalleryPiece({
             tapConfirm();
             onPick();
           }}
+          android_ripple={ripple()}
           style={({ pressed }) => ({
             alignSelf: "flex-start",
             marginTop: spacing.lg,
             paddingVertical: spacing.sm + 2,
             paddingHorizontal: spacing.lg,
+            minHeight: select<number | undefined>({ ios: undefined, android: 48 }),
+            justifyContent: "center",
             borderRadius: radius.sm,
             borderWidth: 1,
             borderColor: picked ? colors.gold : colors.hairline,
             backgroundColor: picked ? colors.gold : "transparent",
+            // Clip the ripple to the quiet button's corners on Android.
+            overflow: select<"visible" | "hidden">({ ios: "visible", android: "hidden" }),
             opacity: pressed ? pressedOpacity : 1,
           })}
         >

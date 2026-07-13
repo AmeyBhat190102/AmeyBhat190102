@@ -3,8 +3,8 @@
  * and the last word is "Open the studio". */
 
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { KeyboardAvoidingView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { BackHandler, KeyboardAvoidingView, Text, View } from "react-native";
 import { createProject } from "../src/api";
 import { DisplayText } from "../src/components/DisplayText";
 import { EditorialRow } from "../src/components/EditorialRow";
@@ -29,6 +29,20 @@ export default function NewProject() {
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Android: hardware/gesture back walks the wizard back a step; only from
+  // the first step does it leave the flow (fall through to the Stack pop).
+  useEffect(() => {
+    if (platformOS() !== "android") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (step > 0) {
+        setStep((s) => s - 1);
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [step]);
 
   const chosen = ARTIFACTS.find((a) => a.key === artifact);
   const canContinue =

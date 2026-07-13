@@ -5,6 +5,7 @@
 import { Pressable, Text } from "react-native";
 import { tapConfirm } from "../haptics";
 import { select } from "../platformHint";
+import { ripple } from "../ripple";
 import { colors, fonts, radius, spacing } from "../theme";
 
 export function PrimaryAction({
@@ -16,7 +17,8 @@ export function PrimaryAction({
   onPress: () => void;
   disabled?: boolean;
 }) {
-  const pressedOpacity = select({ ios: 0.6, android: 0.8 });
+  // iOS: pressed-opacity. Android: ivory ripple over the gold, 48dp target.
+  const pressedOpacity = select({ ios: 0.6, android: 1 });
   return (
     <Pressable
       onPress={() => {
@@ -24,11 +26,16 @@ export function PrimaryAction({
         onPress();
       }}
       disabled={disabled}
+      android_ripple={ripple()}
       style={({ pressed }) => ({
         backgroundColor: colors.gold,
         borderRadius: radius.sm,
         paddingVertical: select({ ios: spacing.md, android: spacing.md }),
+        minHeight: select<number | undefined>({ ios: undefined, android: 48 }),
+        justifyContent: "center",
         alignItems: "center",
+        // Clip the ripple to the bar's corners on Android.
+        overflow: select<"visible" | "hidden">({ ios: "visible", android: "hidden" }),
         opacity: disabled ? 0.35 : pressed ? pressedOpacity : 1,
       })}
     >

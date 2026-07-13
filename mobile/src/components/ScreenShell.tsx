@@ -57,7 +57,13 @@ export function ScreenShell({
           style={{
             paddingHorizontal: spacing.lg,
             paddingTop: spacing.md,
-            paddingBottom: Math.max(insets.bottom, select({ ios: spacing.lg, android: spacing.lg })),
+            // iOS: clear the home indicator. Android: gesture-nav insets run
+            // tighter than the iOS indicator, so give the gold bar a little
+            // air above the navigation area rather than sitting flush on it.
+            paddingBottom: select({
+              ios: Math.max(insets.bottom, spacing.lg),
+              android: Math.max(insets.bottom + spacing.sm, spacing.lg),
+            }),
             borderTopWidth: 1,
             borderTopColor: colors.hairline,
             backgroundColor: colors.ink,
