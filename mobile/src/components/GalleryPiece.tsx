@@ -60,7 +60,9 @@ export function GalleryPiece({
         />
       ))}
 
-      <View style={{ marginTop: spacing.lg }}>
+      {/* Android's roomier leading stacks the reading tighter under the
+          plate's hairline, so it gets a fuller breath of air than iOS. */}
+      <View style={{ marginTop: select({ ios: spacing.lg, android: spacing.xl }) }}>
         <Label>{RISK_LABELS[piece.direction.risk_level] ?? piece.direction.risk_level}</Label>
         <DisplayText size="title" style={{ marginTop: spacing.sm }}>
           {piece.direction.name}
