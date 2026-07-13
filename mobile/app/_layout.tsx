@@ -7,7 +7,11 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
+import { rememberPlatformHint } from "../src/platformHint";
 import { colors } from "../src/theme";
+
+// Keep the review rig's ?platform= hint alive across client-side navigation.
+rememberPlatformHint();
 
 export default function RootLayout() {
   const [loaded] = useFonts({

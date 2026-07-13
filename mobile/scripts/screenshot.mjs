@@ -25,6 +25,7 @@ const ROUTES = [
   ["home", "/"],
   ["new", "/new"],
   ["studio", "/studio/sample"],
+  ["theater", "/studio/sample-running"],
 ];
 
 const EXECUTABLE = process.env.AURA_CHROMIUM
