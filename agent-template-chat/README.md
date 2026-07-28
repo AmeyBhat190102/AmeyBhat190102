@@ -49,6 +49,10 @@ Open http://localhost:3000.
 
 Tool calls made during a reply are shown as chips (e.g. `🔧 save_template ✓`) above the assistant's message.
 
+## Testing the save seam directly
+
+`npm run test:save` (or `node test-save-template.mjs`) exercises `save_template` end-to-end against the MCP server over plain HTTP — no API key needed. It creates a template for `bhavesh-api` (with `instas_ai_client_id: "65"`, no `template_id`, no campaign id), verifies it with `get_template`, updates the same `template_id` (attaching the `instas_ai_campaign_id` found in the create/get response, or `INSTAS_AI_CAMPAIGN_ID` from the env), and verifies the edits persisted. All values are overridable via env vars — see the header comment in the script.
+
 ## Notes
 
 - Conversation history lives in server memory only — restarting the server clears all chats (capped at 200 sessions).

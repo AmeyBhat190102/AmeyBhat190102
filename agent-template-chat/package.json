@@ -6,7 +6,8 @@
   "description": "Chat app for creating and updating voice-agent templates via the vendor-calling MCP server",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test:save": "node test-save-template.mjs"
   },
   "engines": {
     "node": ">=18"
