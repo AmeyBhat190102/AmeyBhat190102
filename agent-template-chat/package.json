@@ -1,0 +1,19 @@
+{
+  "name": "agent-template-chat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chat app for creating and updating voice-agent templates via the vendor-calling MCP server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
