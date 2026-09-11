@@ -1,0 +1,20 @@
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# data
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+
+# node
+node_modules/
+dist/
+
+# local config
+.env
+.env.local
